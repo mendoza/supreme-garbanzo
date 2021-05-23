@@ -4,7 +4,7 @@ Proyecto para sistemas inteligentes 2021 Q2
 
 ## Instalación
 
-Este proyecto fue hecho con Python 3.8, y se necesita pipenv:
+Este proyecto fue hecho con Python 3.9, y se necesita pipenv:
 
 ```ps
 pip install pipenv
