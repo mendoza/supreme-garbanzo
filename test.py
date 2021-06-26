@@ -102,9 +102,6 @@ def main():
     k_means = KMeans(n_clusters=5)
     k_means.fit(main_topics)
     predicts = k_means.predict(main)
-    plt.title("Histograma chidori")
-    plt.hist(predicts)
-    plt.show()
 
 
 if __name__ == "__main__":
