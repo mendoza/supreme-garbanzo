@@ -12,17 +12,7 @@ from sklearn.decomposition import NMF, LatentDirichletAllocation
 import re
 import string
 from nltk.stem.snowball import SnowballStemmer
-from wordcloud import WordCloud
 from sklearn.feature_extraction.text import HashingVectorizer
-
-
-def word_cloud():
-    long_string = ','.join(list(papers['paper_text_processed'].values))
-
-    wordcloud = WordCloud(background_color="white", max_words=2500,
-                          contour_width=3, contour_color='steelblue')
-    wordcloud.generate(long_string)
-    wordcloud.to_image()
 
 
 def clean_text_round1(text):
@@ -76,6 +66,7 @@ def main():
                 xml_paths.append((join(PATH, pack, f), pack))
     dataset_abstracts = []
     abstracts = []
+
     for xml in xml_paths:
         tree = ElementTree.parse(xml[0])
         root = tree.getroot()
@@ -93,78 +84,34 @@ def main():
     stop_words = text.ENGLISH_STOP_WORDS.union(add_stop_words)
     cv = CountVectorizer(stop_words=stop_words)
 
-    vectorizer = HashingVectorizer(norm=None, n_features=5)
+    vectorizer = HashingVectorizer(n_features=50)
 
-    ############################# VECTORES DE TODOS LOS ABSTRACTS ###################################
+    df_data = []
+    df_vector_data = []
     contador = 0
-
-    df_main_vector_data = []
-
-    whole_abstract_model, whole_abstract_Z = LDA(cv, abstracts)
-    print(whole_abstract_Z.shape)  # (NO_DOCUMENTS, NO_TOPICS)
-    print("LDA Model:")
-    print_topics(whole_abstract_model, cv)
-    print("=" * 20)
-    # Let's see how the first document in the corpus looks like in different topic spaces
-    print(whole_abstract_Z[0])
-
-    for idx, topic in enumerate(whole_abstract_model.components_):
-        print("Topic ", idx, " ".join(cv.get_feature_names()
-              [i] for i in topic.argsort()[:-3 - 1:-1]))
-
-    topics = []
-    for idx, topic in enumerate(whole_abstract_model.components_):
-        nested_topics = []
-        for i in (topic.argsort()[:-3 - 1:-1]):
-            nested_topics.append(cv.get_feature_names()[i])
+    for abstract in tqdm(dataset_abstracts):
+        abstract_model, abstract_Z = LDA(cv, abstracts)
+        topics = []
+        for idx, topic in enumerate(abstract_model.components_):
+            nested_topics = []
+            for i in (topic.argsort()[:-3 - 1:-1]):
+                nested_topics.append(cv.get_feature_names()[i])
             topics.append(" ".join(nested_topics))
             # print ("Topic ", idx, " ".join(cv.get_feature_names()[i] for i in topic.argsort()[:-3 - 1:-1]))
-    df_main_vector_data.append((vectorizer.fit_transform([topics[0]]).toarray()[0],
-                                vectorizer.fit_transform([topics[1]]).toarray()[0], vectorizer.fit_transform([topics[2]]).toarray()[0], vectorizer.fit_transform([topics[3]]).toarray()[0], vectorizer.fit_transform([topics[4]]).toarray()[0]))
+        df_vector_data.append((xml_paths[contador][1], vectorizer.fit_transform([topics[0]]).toarray()[0],
+                               vectorizer.fit_transform([topics[1]]).toarray()[0], vectorizer.fit_transform([topics[2]]).toarray()[0], vectorizer.fit_transform([topics[3]]).toarray()[0], vectorizer.fit_transform([topics[4]]).toarray()[0]))
 
-    df_main_vector = pd.DataFrame(df_main_vector_data, columns=[
-        'Topic1', 'Topic2', 'Topic3', 'Topic4', 'Topic5'])
-    df_main_vector.to_csv("dataframeMainVectors.csv", index=False)
-    ############################# VECTORES POR CADA ABSTRACT ###################################
-    # df_data = []
-    # df_vector_data = []
-    # # David, ignora esta practica de progra1
-    # contador = 0
-    # for abstract in dataset_abstracts:
+        df_data.append((xml_paths[contador][1], topics[0],
+                       topics[1], topics[2], topics[3], topics[4]))
+        contador += 1
 
-    #     abstract_model, abstract_Z = LDA(cv, abstracts)
-    #     print(abstract_Z.shape)  # (NO_DOCUMENTS, NO_TOPICS)
-    #     print("LDA Model:")
-    #     print_topics(abstract_model, cv)
-    #     print("=" * 20)
-    #     # Let's see how the first document in the corpus looks like in different topic spaces
-    #     print(abstract_Z[0])
+    df_vector = pd.DataFrame(df_vector_data, columns=[
+                             'ID', 'Topic1', 'Topic2', 'Topic3', 'Topic4', 'Topic5'])
+    df_vector.to_csv("dataframeVectors.csv", index=False)
 
-    #     topics = []
-    #     contador += 1
-    #     for idx, topic in enumerate(abstract_model.components_):
-    #         nested_topics = []
-    #         for i in (topic.argsort()[:-3 - 1:-1]):
-    #             nested_topics.append(cv.get_feature_names()[i])
-    #         topics.append(" ".join(nested_topics))
-    #         # print ("Topic ", idx, " ".join(cv.get_feature_names()[i] for i in topic.argsort()[:-3 - 1:-1]))
-    #     df_vector_data.append((xml_paths[contador][1], vectorizer.fit_transform([topics[0]]).toarray()[0],
-    #                            vectorizer.fit_transform([topics[1]]).toarray()[0], vectorizer.fit_transform([topics[2]]).toarray()[0], vectorizer.fit_transform([topics[3]]).toarray()[0], vectorizer.fit_transform([topics[4]]).toarray()[0]))
-    #     df_data.append((xml_paths[contador][1], topics[0],
-    #                    topics[1], topics[2], topics[3], topics[4]))
-    #     if contador == 10:
-    #         break
+    df = pd.DataFrame(df_data, columns=[
+                      'ID', 'Topic1', 'Topic2', 'Topic3', 'Topic4', 'Topic5'])
+    df.to_csv("dataframe.csv", index=False)
 
-    # print("*" * 20)
-
-    # df_vector = pd.DataFrame(df_vector_data, columns=[
-    #                          'ID', 'Topic1', 'Topic2', 'Topic3', 'Topic4', 'Topic5'])
-    # df_vector.to_csv("dataframeVectors.csv", index=False)
-
-    # df = pd.DataFrame(df_data, columns=[
-    #                   'ID', 'Topic1', 'Topic2', 'Topic3', 'Topic4', 'Topic5'])
-    # df.to_csv("dataframe.csv", index=False)
-
-    #######################################################################################################################
 if __name__ == '__main__':
     main()
