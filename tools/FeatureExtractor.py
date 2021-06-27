@@ -47,9 +47,10 @@ def main():
         root = tree.getroot()
         for p in root.findall("front/article-meta/abstract/sec/p"):
             abstract += " ".join(p.itertext())
-    vectorize_text(
+    vectors = vectorize_text(
         "Esta mierda recibe un fucking texto, lo limpia, y lo vecotriza, ciao"
     )
+    print("vector: ", vectors)
 
 
 if __name__ == "__main__":

@@ -109,3 +109,5 @@ def vectorize_text(Text):
     print("Topics\n")
     print(df.head())
     print("-" * 80)
+
+    return df_vector_data
