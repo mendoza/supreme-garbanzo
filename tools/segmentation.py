@@ -1,13 +1,15 @@
 import pandas as pd
 import numpy as np
+from pandas.core.frame import DataFrame
 from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
 import pickle
 
 
 def main():
     data_frame = pd.read_csv('dataframeVectors.csv')
-    ids = data_frame["ID"].to_list()
-    no_ids = data_frame.loc[:, data_frame.columns != "ID"]
+    ids = data_frame["id"].to_list()
+    no_ids = data_frame.loc[:, data_frame.columns != "id"]
 
     main_topics = []
     for i, row in no_ids.iterrows():
@@ -27,7 +29,10 @@ def main():
     # k_means.fit(main_topics)
     # pickle.dump(k_means, open('model.pckl', 'wb'))
     predicts = k_means.predict(main_topics)
-    print(predicts)
+    plt.hist(predicts)
+    plt.show()
+    df = DataFrame({'ids': ids, 'class': predicts})
+    df.to_csv('cluster.csv', index=False)
 
 
 if __name__ == "__main__":

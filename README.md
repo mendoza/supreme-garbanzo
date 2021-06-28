@@ -22,12 +22,11 @@ Como descargar oa_file_list.txt
 curl https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_file_list.txt -o oa_file_list.txt
 ```
 
-Como obtener el trainning data; Esto obtendra 1000 lineas random del archivo oa_file_list.txt y descargara los archivos 
+Como obtener el trainning data; Esto obtendra 1000 papers con abstract del archivo oa_file_list.txt y descargara los archivos 
 ```ps
 mkdir data/packs
+mkdir data/training
 python ./tools/getFiles.py
-mkdir data/trainning
-python ./tools/unpackFiles.py
 ```
 
 ## Correr el proyecto

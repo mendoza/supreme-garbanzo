@@ -15,7 +15,6 @@ def LDA(cv, text):
 
     data_cv = cv.fit_transform(text)
     data_stop = pd.DataFrame(data_cv.toarray(), columns=cv.get_feature_names())
-    data_stop.to_csv("test.csv")
 
     # Build a Latent Dirichlet Allocation Model
     lda_model = LatentDirichletAllocation(
@@ -43,9 +42,9 @@ def clean_text_round2(text):
 
 
 def vectorize_text(Text):
-    print("Original Text\n")
-    print(Text)
-    print("-" * 100)
+    # print("Original Text\n")
+    # print(Text)
+    # print("-" * 100)
 
     clean_text = []
     add_stop_words = stopwords.words("english")
@@ -63,14 +62,14 @@ def vectorize_text(Text):
 
     clean_text.append(" ".join(filtered_tokens))
 
-    print("Clean text\n")
-    print(clean_text)
-    print("-" * 80)
+    # print("Clean text\n")
+    # print(clean_text)
+    # print("-" * 80)
 
     stop_words = text.ENGLISH_STOP_WORDS.union(add_stop_words)
     cv = CountVectorizer(stop_words=stop_words)
 
-    vectorizer = HashingVectorizer(n_features=5)
+    vectorizer = HashingVectorizer(n_features=50)
 
     df_data = []
     df_vector_data = []
@@ -99,15 +98,15 @@ def vectorize_text(Text):
         df_vector_data, columns=["Topic1", "Topic2", "Topic3", "Topic4", "Topic5"]
     )
     # df_vector.to_csv("dataframeVectors.csv", index=False)
-    print("Vectorized Topics\n")
-    print(df_vector.head())
-    print("-" * 80)
+    # print("Vectorized Topics\n")
+    # print(df_vector.head())
+    # print("-" * 80)
     df = pd.DataFrame(
         df_data, columns=["Topic1", "Topic2", "Topic3", "Topic4", "Topic5"]
     )
     # df.to_csv("dataframe.csv", index=False)
-    print("Topics\n")
-    print(df.head())
-    print("-" * 80)
+    # print("Topics\n")
+    # print(df.head())
+    # print("-" * 80)
 
-    return df_vector_data
+    return df_vector_data[0]

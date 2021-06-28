@@ -1,19 +1,9 @@
 import pandas as pd
-import time
 from os import listdir
 from os.path import basename, join
+import numpy as np
 from tqdm import tqdm
 from xml.etree import ElementTree
-import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from sklearn.feature_extraction import text
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.decomposition import NMF, LatentDirichletAllocation
-import re
-import string
-from nltk.stem.snowball import SnowballStemmer
-from sklearn.feature_extraction.text import HashingVectorizer
 from Generic import vectorize_text
 
 
@@ -23,34 +13,39 @@ def print_topics(model, vectorizer, top_n=10):
         print(
             [
                 (vectorizer.get_feature_names()[i], topic[i])
-                for i in topic.argsort()[: -top_n - 1 : -1]
+                for i in topic.argsort()[: -top_n - 1: -1]
             ]
         )
 
 
 def main():
-    add_stop_words = stopwords.words("english")
-    stemmer = SnowballStemmer("english", ignore_stopwords=True)
-    PATH = "./data/trainning/"
+    PATH = "./data/training/"
     xml_paths = []
     for pack in tqdm(listdir(PATH)):
         files = listdir(join(PATH, pack))
         for f in files:
             if ".nxml" in basename(f):
                 xml_paths.append((join(PATH, pack, f), pack))
-    dataset_abstracts = []
-    abstracts = []
-
-    for i, xml in enumerate(xml_paths):
+    ids = []
+    vectors = []
+    for i, xml in enumerate(tqdm(xml_paths)):
         abstract = ""
         tree = ElementTree.parse(xml[0])
         root = tree.getroot()
         for p in root.findall("front/article-meta/abstract/sec/p"):
             abstract += " ".join(p.itertext())
-    vectors = vectorize_text(
-        "Esta mierda recibe un fucking texto, lo limpia, y lo vecotriza, ciao"
-    )
-    print("vector: ", vectors)
+
+        if abstract != '':
+            vector = vectorize_text(abstract)
+            vectors.append(vector)
+            ids.append(xml_paths[i][1])
+
+    df_vectors = pd.DataFrame({"id": [], "Topic1": [], "Topic2": [], "Topic3": [], "Topic4": [
+    ], "Topic5": []}, columns=["Topic1", "Topic2", "Topic3", "Topic4", "Topic5"])
+    for i, vector in enumerate(vectors):
+        df_vectors = df_vectors.append({"id": ids[i],
+                                        "Topic1": vector[0], "Topic2": vector[1], "Topic3": vector[2], "Topic4": vector[3], "Topic5": vector[4]}, ignore_index=True)
+    df_vectors.to_csv("dataframeVectors.csv", index=False)
 
 
 if __name__ == "__main__":
