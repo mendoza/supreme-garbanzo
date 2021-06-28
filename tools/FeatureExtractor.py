@@ -28,6 +28,9 @@ def main():
                 xml_paths.append((join(PATH, pack, f), pack))
     ids = []
     vectors = []
+    df = pd.DataFrame(
+        {}, columns=["id", "Topic1", "Topic2", "Topic3", "Topic4", "Topic5"]
+    )
     for i, xml in enumerate(tqdm(xml_paths)):
         abstract = ""
         tree = ElementTree.parse(xml[0])
@@ -36,9 +39,11 @@ def main():
             abstract += " ".join(p.itertext())
 
         if abstract != '':
-            vector = vectorize_text(abstract)
+            vector, word_presentation = vectorize_text(abstract)
             vectors.append(vector)
             ids.append(xml_paths[i][1])
+            word_presentation["id"] = ids[i]
+            df = df.append(word_presentation)
 
     df_vectors = pd.DataFrame({"id": [], "Topic1": [], "Topic2": [], "Topic3": [], "Topic4": [
     ], "Topic5": []}, columns=["Topic1", "Topic2", "Topic3", "Topic4", "Topic5"])
@@ -46,6 +51,7 @@ def main():
         df_vectors = df_vectors.append({"id": ids[i],
                                         "Topic1": vector[0], "Topic2": vector[1], "Topic3": vector[2], "Topic4": vector[3], "Topic5": vector[4]}, ignore_index=True)
     df_vectors.to_csv("dataframeVectors.csv", index=False)
+    df.to_csv("dataframe.csv", index=False)
 
 
 if __name__ == "__main__":

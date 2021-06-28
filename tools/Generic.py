@@ -78,7 +78,7 @@ def vectorize_text(Text):
     topics = []
     for idx, topic in enumerate(Text_model.components_):
         nested_topics = []
-        for i in topic.argsort()[: -3 - 1 : -1]:
+        for i in topic.argsort()[: -10 - 1: -1]:
             nested_topics.append(cv.get_feature_names()[i])
         topics.append(" ".join(nested_topics))
         # print ("Topic ", idx, " ".join(cv.get_feature_names()[i] for i in topic.argsort()[:-3 - 1:-1]))
@@ -95,7 +95,8 @@ def vectorize_text(Text):
     df_data.append((topics[0], topics[1], topics[2], topics[3], topics[4]))
 
     df_vector = pd.DataFrame(
-        df_vector_data, columns=["Topic1", "Topic2", "Topic3", "Topic4", "Topic5"]
+        df_vector_data, columns=[
+            "Topic1", "Topic2", "Topic3", "Topic4", "Topic5"]
     )
     # df_vector.to_csv("dataframeVectors.csv", index=False)
     # print("Vectorized Topics\n")
@@ -109,4 +110,4 @@ def vectorize_text(Text):
     # print(df.head())
     # print("-" * 80)
 
-    return df_vector_data[0]
+    return df_vector_data[0], df
